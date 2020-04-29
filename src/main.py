@@ -1,30 +1,22 @@
 import utime
 import machine
-from app.motor import motor
+from app.motor import FET
 
 mqtt = None
-m = motor()
-def move(message):
-    global mqtt
-    mqtt.pub("status", "moving")
-    global m
-    m.move(message)
-
-def stop(message):
-    m.move(0)
 
 def run(mqtt_obj, parameters):
     print("got to run")
     #Make mqtt object global, so it can be called from interrupts
     global mqtt 
     mqtt = mqtt_obj
+    m = FET()
     
     #Set project name as prefix so we can easily filter topics
     #Final topic will be in form:
     #UID/prefix/user_topic
     mqtt.set_prefix("hopper")
 
-    mqtt.sub("move", move)
+    mqtt.sub("move", m.drive)
 
     #Main loop
     mqtt.pub("status", "ready")
